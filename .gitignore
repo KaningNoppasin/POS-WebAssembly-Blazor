@@ -1,0 +1,55 @@
+# Ignore build output
+bin/
+obj/
+
+# Ignore Visual Studio and Rider specific files
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore NuGet packages and lock files
+*.nupkg
+*.snupkg
+project.lock.json
+packages/
+.nuget/
+logs/
+nuget.exe
+project.assets.json
+project.nuget.cache
+
+# Ignore WebAssembly build artifacts
+wwwroot/_framework/
+wwwroot/*.gz
+wwwroot/*.br
+wwwroot/*.wasm
+wwwroot/*.js
+wwwroot/*.dll
+wwwroot/_bin/
+blazor.boot.json
+blazor.boot.js
+
+# Ignore debug and test logs
+*.log
+*.tlog
+*.cache
+*.csproj.nuget.dgspec.json
+*.csproj.nuget.g.props
+*.csproj.nuget.g.targets
+
+# Ignore Rider and ReSharper files
+*.DotSettings
+*.DotSettings.user
+resharper.xml
+
+# Ignore coverage reports
+coverage/
+*.coverlet/
+
+# Ignore local settings
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
