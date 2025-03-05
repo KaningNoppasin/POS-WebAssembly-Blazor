@@ -1,0 +1,76 @@
+@page "/products"
+@using System.Net.Http.Json
+@using MudBlazor
+@inject HttpClient Http
+
+<MudContainer>
+    <MudText Typo="Typo.h4">Products</MudText>
+
+    <MudTable Items="@products" Hover="true">
+        <HeaderContent>
+            <MudTh>Barcode</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Price</MudTh>
+            <MudTh>Image</MudTh>
+            <MudTh>Stock</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.ProductBarcode</MudTd>
+            <MudTd>@context.ProductName</MudTd>
+            <MudTd>@context.Price</MudTd>
+            <MudTd>@context.ImagePath</MudTd>
+            <MudTd>@context.Stock</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<ProductModel> products = new List<ProductModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetFromJsonAsync<ApiResponse>("http://localhost:8080/api/products");
+
+        if (response?.Data != null)
+        {
+            products = response.Data.Select(p => new ProductModel
+            {
+                ProductBarcode = p.ProductBarcode ?? string.Empty,  // Use default value if null
+                ProductName = p.ProductName ?? string.Empty,  // Use default value if null
+                ImagePath = p.ImagePath ?? string.Empty,  // Use default value if null
+                Price = p.Price,
+                Stock = p.Stock?.Quantity ?? 0 // Ensure Stock is initialized
+            }).ToList();
+        }
+    }
+
+    public class ProductModel
+    {
+        public string ProductBarcode { get; set; }
+        public string ProductName { get; set; }
+        public string ImagePath { get; set; }
+        public uint Price { get; set; }
+        public int Stock { get; set; }
+    }
+
+    public class ApiResponse
+    {
+        public string Status { get; set; }
+        public List<ApiProduct>? Data { get; set; }  // Mark as nullable
+    }
+
+    public class ApiProduct
+    {
+        public int ID { get; set; }
+        public string? ProductBarcode { get; set; }  // Mark as nullable
+        public string? ProductName { get; set; }  // Mark as nullable
+        public string? ImagePath { get; set; }  // Mark as nullable
+        public uint Price { get; set; }
+        public Stock? Stock { get; set; }  // Mark as nullable
+    }
+
+    public class Stock
+    {
+        public int Quantity { get; set; }
+    }
+}
