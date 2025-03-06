@@ -2,7 +2,7 @@
 @using System.Text.Json
 @inject HttpClient Http
 @using MudBlazor
-
+@using System.Text.Json.Serialization;
 
 <PageTitle>Products</PageTitle>
 <MudContainer>
@@ -36,53 +36,20 @@
     // This method will run on page initialization
     protected override async Task OnInitializedAsync()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:8080/api/products");
-        request.Headers.Add("Accept", "application/json");
+        var response = await Http.GetFromJsonAsync<ApiResponse>("http://localhost:8080/api/products");
 
-        var response = await Http.SendAsync(request);
-
-        if (response.IsSuccessStatusCode)
+        if (response?.Data != null)
         {
-            // Debug: Log the raw response content
-            var rawContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("Raw Response Content: " + rawContent);  // Log the raw JSON response
-
-            using var responseStream = await response.Content.ReadAsStreamAsync();
-            var apiResponse = await JsonSerializer.DeserializeAsync<ApiResponse>(
-                responseStream,
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = new SnakeCaseNamingPolicy() // Using the custom SnakeCaseNamingPolicy
-                }
-            );
-
-            if (apiResponse?.Data != null)
+            products = response.Data.Select(p => new ProductModel
             {
-                Console.WriteLine($"Fetched {apiResponse.Data.Count} products.");
-
-                // Debugging each product in Data
-                foreach (var product in apiResponse.Data)
-                {
-                    Console.WriteLine($"Product Barcode: {product.ProductBarcode}");
-                    Console.WriteLine($"Product Name: {product.ProductName}");
-                    Console.WriteLine($"Price: {product.Price}");
-                    Console.WriteLine($"Stock Quantity: {product.Stock?.Quantity}");
-                }
-
-                products = apiResponse.Data.Select(p => new ProductModel
-                {
-                    ProductBarcode = p.ProductBarcode ?? string.Empty,
-                    ProductName = p.ProductName ?? string.Empty,
-                    ImagePath = p.ImagePath ?? string.Empty,
-                    Price = p.Price,
-                    Stock = p.Stock?.Quantity ?? 0
-                }).ToList();
-            }
+                ProductBarcode = p.ProductBarcode ?? string.Empty,
+                ProductName = p.ProductName ?? string.Empty,
+                ImagePath = p.ImagePath ?? string.Empty,
+                Price = p.Price,
+                Stock = p.Stock?.Quantity ?? 0
+            }).ToList();
         }
-        else
-        {
-            getProductsError = true;
-        }
+
 
         shouldRender = true;
     }
@@ -105,30 +72,21 @@
     public class ApiProduct
     {
         public int ID { get; set; }
+        [JsonPropertyName("product_barcode")]
         public string? ProductBarcode { get; set; }
+        [JsonPropertyName("product_name")]
         public string? ProductName { get; set; }
+        [JsonPropertyName("image_path")]
         public string? ImagePath { get; set; }
+        [JsonPropertyName("price")]
         public uint Price { get; set; }
+        [JsonPropertyName("stock")]
         public Stock? Stock { get; set; }
     }
 
     public class Stock
     {
+        [JsonPropertyName("quantity")]
         public int Quantity { get; set; }
-    }
-
-    // Custom SnakeCase naming policy
-    public class SnakeCaseNamingPolicy : JsonNamingPolicy
-    {
-        public override string ConvertName(string name)
-        {
-            var snakeCaseName = System.Text.RegularExpressions.Regex.Replace(
-                name,
-                "([a-z0-9])([A-Z])",
-                "$1_$2"
-            ).ToLower();
-
-            return snakeCaseName;
-        }
     }
 }
