@@ -3,6 +3,8 @@
 @using MudBlazor
 @inject HttpClient Http
 
+
+<PageTitle>Products</PageTitle>
 <MudContainer>
     <MudText Typo="Typo.h4">Products</MudText>
 
@@ -27,23 +29,33 @@
 @code {
     private List<ProductModel> products = new List<ProductModel>();
 
+    // This method will run on page initialization
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetFromJsonAsync<ApiResponse>("http://localhost:8080/api/products");
+
+        // Fetching the product data from the backend API
+        var response = await Http.GetFromJsonAsync<ApiResponse>("products");
 
         if (response?.Data != null)
         {
+            Console.WriteLine($"Fetched {response.Data.Count} products");
+            foreach (var p in response.Data)
+            {
+                Console.WriteLine($"Product: {p.ProductName}, Barcode: {p.ProductBarcode}");
+            }
+            // Mapping API response to local product model
             products = response.Data.Select(p => new ProductModel
             {
-                ProductBarcode = p.ProductBarcode ?? string.Empty,  // Use default value if null
-                ProductName = p.ProductName ?? string.Empty,  // Use default value if null
-                ImagePath = p.ImagePath ?? string.Empty,  // Use default value if null
+                ProductBarcode = p.ProductBarcode ?? string.Empty, // Use default value if null
+                ProductName = p.ProductName ?? string.Empty, // Use default value if null
+                ImagePath = p.ImagePath ?? string.Empty, // Use default value if null
                 Price = p.Price,
                 Stock = p.Stock?.Quantity ?? 0 // Ensure Stock is initialized
             }).ToList();
         }
     }
 
+    // Product model to map API data
     public class ProductModel
     {
         public string ProductBarcode { get; set; }
@@ -53,22 +65,25 @@
         public int Stock { get; set; }
     }
 
+    // API Response model
     public class ApiResponse
     {
-        public string Status { get; set; }
-        public List<ApiProduct>? Data { get; set; }  // Mark as nullable
+        public string? Status { get; set; }
+        public List<ApiProduct>? Data { get; set; }
     }
 
+    // API Product model
     public class ApiProduct
     {
         public int ID { get; set; }
-        public string? ProductBarcode { get; set; }  // Mark as nullable
-        public string? ProductName { get; set; }  // Mark as nullable
-        public string? ImagePath { get; set; }  // Mark as nullable
+        public string? ProductBarcode { get; set; }
+        public string? ProductName { get; set; }
+        public string? ImagePath { get; set; }
         public uint Price { get; set; }
-        public Stock? Stock { get; set; }  // Mark as nullable
+        public Stock? Stock { get; set; }
     }
 
+    // Stock model
     public class Stock
     {
         public int Quantity { get; set; }
