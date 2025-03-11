@@ -5,8 +5,11 @@
 @using System.Text.Json.Serialization;
 
 <PageTitle>Products</PageTitle>
-<MudContainer>
-    <MudText Typo="Typo.h4">Products</MudText>
+<MudContainer Class="mt-5">
+    <div class="d-flex justify-between align-items-center gap-2">
+        <MudText Typo="Typo.h4">Products</MudText>
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
+    </div>
 
     <MudTable Items="@products" Hover="true">
         <HeaderContent>
@@ -20,13 +23,11 @@
         <RowTemplate>
             <MudTd>@context.ProductBarcode</MudTd>
             <MudTd>@context.ProductName</MudTd>
-            <MudTd>@context.Price</MudTd>
+            <MudTd>@context.Price.ToString("C")</MudTd>
             <MudTd>
-                @* @context.ImagePath *@
-                @* @($"http://127.0.0.1:8080/{context.ImagePath}") *@
                 <MudTooltip Text="@context.ProductName">
                     <MudImage
-                        Src="http://127.0.0.1:8080/uploads/default_image.jpeg"
+                        Src="@($"http://127.0.0.1:8080/{context.ImagePath}")"
                         Alt="@context.ProductName"
                         Elevation="25"
                         Width="75"
@@ -36,8 +37,8 @@
                 </MudTooltip>
             </MudTd>
             <MudTd>@context.Stock</MudTd>
-            <MudTd  Width="200">
-                <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" />
+            <MudTd Width="200">
+                <MudFab Class="" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" />
                 <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Delete" />
             </MudTd>
         </RowTemplate>
@@ -54,7 +55,7 @@
     // This method will run on page initialization
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetFromJsonAsync<ApiResponse>("http://localhost:8080/api/products");
+        var response = await Http.GetFromJsonAsync<ApiResponse>("products");
 
         if (response?.Data != null)
         {
