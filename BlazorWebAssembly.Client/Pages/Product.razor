@@ -15,13 +15,29 @@
             <MudTh>Price</MudTh>
             <MudTh>Image</MudTh>
             <MudTh>Stock</MudTh>
+            <MudTh>Edit</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>@context.ProductBarcode</MudTd>
             <MudTd>@context.ProductName</MudTd>
             <MudTd>@context.Price</MudTd>
-            <MudTd>@context.ImagePath</MudTd>
+            <MudTd>
+                @* @context.ImagePath *@
+                @* @($"http://127.0.0.1:8080/{context.ImagePath}") *@
+                <MudTooltip Text="@context.ProductName">
+                    <MudImage
+                        Src="http://127.0.0.1:8080/uploads/default_image.jpeg"
+                        Alt="@context.ProductName"
+                        Elevation="25"
+                        Width="75"
+                        Class="rounded-lg"
+                        FallbackSrc="images/mony.jpg" />
+                </MudTooltip>
+            </MudTd>
             <MudTd>@context.Stock</MudTd>
+            <MudTd>
+                <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Edit" />
+            </MudTd>
         </RowTemplate>
     </MudTable>
 </MudContainer>
