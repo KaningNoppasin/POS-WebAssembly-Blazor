@@ -142,17 +142,21 @@
         if (!result.Canceled)
         {
             var updatedProduct = (ProductModel)result.Data;
-            using var formData = new MultipartFormDataContent();
+            using var formDataProduct = new MultipartFormDataContent();
 
             // Add fields as string content
-            formData.Add(new StringContent(updatedProduct.ProductID.ToString()), "ID");
-            formData.Add(new StringContent(updatedProduct.ProductBarcode), "product_barcode");
-            formData.Add(new StringContent(updatedProduct.ProductName), "product_name");
-            formData.Add(new StringContent(updatedProduct.ImagePath), "image_path");
-            formData.Add(new StringContent(updatedProduct.Price.ToString()), "price");
-            formData.Add(new StringContent(updatedProduct.Stock.ToString()), "stock");
+            formDataProduct.Add(new StringContent(updatedProduct.ProductID.ToString()), "ID");
+            formDataProduct.Add(new StringContent(updatedProduct.ProductBarcode), "product_barcode");
+            formDataProduct.Add(new StringContent(updatedProduct.ProductName), "product_name");
+            formDataProduct.Add(new StringContent(updatedProduct.ImagePath), "image_path");
+            formDataProduct.Add(new StringContent(updatedProduct.Price.ToString()), "price");
 
-            await Http.PutAsync($"products/{product.ProductID}", formData);
+            await Http.PutAsync($"products/{product.ProductID}", formDataProduct);
+
+            using var formDataStock = new MultipartFormDataContent();
+            formDataStock.Add(new StringContent(updatedProduct.Stock.ToString()), "quantity");
+            await Http.PutAsync($"stocks/{product.ProductID}", formDataStock);
+
             await FetchProductDataAsync();
             Snackbar.Add("Update Product Success", Severity.Success);
         }
