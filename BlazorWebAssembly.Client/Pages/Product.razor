@@ -5,6 +5,7 @@
 @using System.Text.Json.Serialization;
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@using MudBlazor.Examples.Data.Models
 
 <PageTitle>Products</PageTitle>
 <MudContainer Class="mt-5">
@@ -40,7 +41,7 @@
             </MudTd>
             <MudTd>@context.Stock</MudTd>
             <MudTd Width="200">
-                <MudFab Class="" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" />
+                <MudFab Class="" Color="Color.Primary" @onclick="() => UpdateProductAsync(context)" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" />
                 <MudFab Color="Color.Secondary" @onclick="() => DeleteProductAsync(context)" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" />
             </MudTd>
         </RowTemplate>
@@ -77,15 +78,6 @@
                 Stock = p.Stock?.Quantity ?? 0
             }).ToList();
         }
-    }
-    public class ProductModel
-    {
-        public int ProductID { get; set; }
-        public string ProductBarcode { get; set; } = string.Empty;
-        public string ProductName { get; set; } = string.Empty;
-        public string ImagePath { get; set; } = string.Empty;
-        public uint Price { get; set; }
-        public int Stock { get; set; }
     }
 
     public class ApiResponse
@@ -126,9 +118,9 @@
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
         var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
-        var result = await dialog.GetReturnValueAsync<bool>(); // Explicitly await the result
+        var result = await dialog.Result;
 
-        if (result) // Only delete if the user confirms
+        if (!result.Canceled)
         {
             await Http.DeleteAsync($"products/{product.ProductID}"); // Modify the endpoint as needed
             await FetchProductDataAsync();
@@ -136,4 +128,21 @@
         }
         @* return DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options); *@
     }
+
+    private async Task UpdateProductAsync(ProductModel product)
+    {
+        var parameters = new DialogParameters<UpdateDialog>
+        {
+            { x => x.Product, product }
+        };
+
+        var dialog = await DialogService.ShowAsync<UpdateDialog>("Update Product", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            Snackbar.Add("Update Product Success", Severity.Success);
+        }
+    }
+
 }

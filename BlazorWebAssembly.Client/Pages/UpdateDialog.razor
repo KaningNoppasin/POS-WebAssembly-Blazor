@@ -1,0 +1,34 @@
+@using MudBlazor.Examples.Data.Models
+
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3 mb-n1"/>
+            Update Product?
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Label="Product Name" @bind-Value="Product.ProductName" />
+        <MudTextField Label="Barcode" @bind-Value="Product.ProductBarcode" />
+        <MudTextField Label="Price" @bind-Value="Product.Price" Type="number" />
+        <MudTextField Label="Stock" @bind-Value="Product.Stock" Type="number" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Info" OnClick="Submit">Update</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public ProductModel Product { get; set; }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true)); // Return true on confirmation
+    private void Cancel() => MudDialog.Cancel();
+
+}
