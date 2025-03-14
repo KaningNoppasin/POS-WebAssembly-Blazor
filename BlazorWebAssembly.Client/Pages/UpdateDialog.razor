@@ -28,7 +28,7 @@
     [Parameter]
     public ProductModel Product { get; set; }
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true)); // Return true on confirmation
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Product)); // Return true on confirmation
     private void Cancel() => MudDialog.Cancel();
 
 }

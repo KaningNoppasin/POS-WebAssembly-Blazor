@@ -141,6 +141,8 @@
 
         if (!result.Canceled)
         {
+            var updatedProduct = (ProductModel)result.Data;
+            @* await Http.PutAsJsonAsync($"products/{product.ProductID}", updatedProduct); *@
             Snackbar.Add("Update Product Success", Severity.Success);
         }
     }
