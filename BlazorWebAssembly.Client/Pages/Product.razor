@@ -4,6 +4,7 @@
 @using MudBlazor
 @using System.Text.Json.Serialization;
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <PageTitle>Products</PageTitle>
 <MudContainer Class="mt-5">
@@ -55,28 +56,28 @@
 
     // This method will run on page initialization
     protected override async Task OnInitializedAsync()
-{
-    await FetchProductDataAsync();
-    shouldRender = true;
-}
-
-private async Task FetchProductDataAsync()
-{
-    var response = await Http.GetFromJsonAsync<ApiResponse>("products");
-
-    if (response?.Data != null)
     {
-        products = response.Data.Select(p => new ProductModel
-        {
-            ProductID = p.ID,
-            ProductBarcode = p.ProductBarcode ?? string.Empty,
-            ProductName = p.ProductName ?? string.Empty,
-            ImagePath = p.ImagePath ?? string.Empty,
-            Price = p.Price,
-            Stock = p.Stock?.Quantity ?? 0
-        }).ToList();
+        await FetchProductDataAsync();
+        shouldRender = true;
     }
-}
+
+    private async Task FetchProductDataAsync()
+    {
+        var response = await Http.GetFromJsonAsync<ApiResponse>("products");
+
+        if (response?.Data != null)
+        {
+            products = response.Data.Select(p => new ProductModel
+            {
+                ProductID = p.ID,
+                ProductBarcode = p.ProductBarcode ?? string.Empty,
+                ProductName = p.ProductName ?? string.Empty,
+                ImagePath = p.ImagePath ?? string.Empty,
+                Price = p.Price,
+                Stock = p.Stock?.Quantity ?? 0
+            }).ToList();
+        }
+    }
     public class ProductModel
     {
         public int ProductID { get; set; }
@@ -131,6 +132,7 @@ private async Task FetchProductDataAsync()
         {
             await Http.DeleteAsync($"products/{product.ProductID}"); // Modify the endpoint as needed
             await FetchProductDataAsync();
+            Snackbar.Add("Delete Product Success", Severity.Success);
         }
         @* return DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options); *@
     }
