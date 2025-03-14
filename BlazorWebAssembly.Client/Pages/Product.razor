@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @using MudBlazor
 @using System.Text.Json.Serialization;
+@inject IDialogService DialogService
 
 <PageTitle>Products</PageTitle>
 <MudContainer Class="mt-5">
@@ -39,7 +40,7 @@
             <MudTd>@context.Stock</MudTd>
             <MudTd Width="200">
                 <MudFab Class="" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" />
-                <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Delete" />
+                <MudFab Color="Color.Secondary" @onclick="() => DeleteProductAsync(context)" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" />
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -54,27 +55,31 @@
 
     // This method will run on page initialization
     protected override async Task OnInitializedAsync()
+{
+    await FetchProductDataAsync();
+    shouldRender = true;
+}
+
+private async Task FetchProductDataAsync()
+{
+    var response = await Http.GetFromJsonAsync<ApiResponse>("products");
+
+    if (response?.Data != null)
     {
-        var response = await Http.GetFromJsonAsync<ApiResponse>("products");
-
-        if (response?.Data != null)
+        products = response.Data.Select(p => new ProductModel
         {
-            products = response.Data.Select(p => new ProductModel
-            {
-                ProductBarcode = p.ProductBarcode ?? string.Empty,
-                ProductName = p.ProductName ?? string.Empty,
-                ImagePath = p.ImagePath ?? string.Empty,
-                Price = p.Price,
-                Stock = p.Stock?.Quantity ?? 0
-            }).ToList();
-        }
-
-
-        shouldRender = true;
+            ProductID = p.ID,
+            ProductBarcode = p.ProductBarcode ?? string.Empty,
+            ProductName = p.ProductName ?? string.Empty,
+            ImagePath = p.ImagePath ?? string.Empty,
+            Price = p.Price,
+            Stock = p.Stock?.Quantity ?? 0
+        }).ToList();
     }
-
+}
     public class ProductModel
     {
+        public int ProductID { get; set; }
         public string ProductBarcode { get; set; } = string.Empty;
         public string ProductName { get; set; } = string.Empty;
         public string ImagePath { get; set; } = string.Empty;
@@ -107,5 +112,26 @@
     {
         [JsonPropertyName("quantity")]
         public int Quantity { get; set; }
+    }
+    private async Task DeleteProductAsync(ProductModel product)
+    {
+        var parameters = new DialogParameters<DeleteDialog>
+        {
+            { x => x.ContentText, "Do you really want to delete these records?" },
+            { x => x.ButtonText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
+        var result = await dialog.GetReturnValueAsync<bool>(); // Explicitly await the result
+
+        if (result) // Only delete if the user confirms
+        {
+            await Http.DeleteAsync($"products/{product.ProductID}"); // Modify the endpoint as needed
+            await FetchProductDataAsync();
+        }
+        @* return DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options); *@
     }
 }
