@@ -142,7 +142,18 @@
         if (!result.Canceled)
         {
             var updatedProduct = (ProductModel)result.Data;
-            @* await Http.PutAsJsonAsync($"products/{product.ProductID}", updatedProduct); *@
+            using var formData = new MultipartFormDataContent();
+
+            // Add fields as string content
+            formData.Add(new StringContent(updatedProduct.ProductID.ToString()), "ID");
+            formData.Add(new StringContent(updatedProduct.ProductBarcode), "product_barcode");
+            formData.Add(new StringContent(updatedProduct.ProductName), "product_name");
+            formData.Add(new StringContent(updatedProduct.ImagePath), "image_path");
+            formData.Add(new StringContent(updatedProduct.Price.ToString()), "price");
+            formData.Add(new StringContent(updatedProduct.Stock.ToString()), "stock");
+
+            await Http.PutAsync($"products/{product.ProductID}", formData);
+            await FetchProductDataAsync();
             Snackbar.Add("Update Product Success", Severity.Success);
         }
     }
