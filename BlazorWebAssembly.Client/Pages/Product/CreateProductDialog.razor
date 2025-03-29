@@ -14,6 +14,24 @@
         <MudTextField Label="Barcode" @bind-Value="Product.ProductBarcode" />
         <MudTextField Label="Price" @bind-Value="Product.Price" Type="number" />
         <MudTextField Label="Stock" @bind-Value="Product.Stock" Type="number" />
+        <MudFileUpload T="IBrowserFile" Accept=".png, .jpg, .jpeg" FilesChanged="UploadFiles">
+            <ActivatorContent>
+                <MudFab Color="Color.Secondary"
+                        StartIcon="@Icons.Material.Filled.Image"
+                        Label="Load picture"
+                        Class="mt-3" />
+            </ActivatorContent>
+            <SelectedTemplate>
+                @if (context != null)
+                {
+                    <MudText>@context.Name</MudText>
+                }
+                else
+                {
+                    <MudText>No File</MudText>
+                }
+            </SelectedTemplate>
+        </MudFileUpload>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -27,7 +45,35 @@
 
     public ProductModel Product { get; set; } = new ProductModel();
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(Product)); // Return true on confirmation
+    public class DialogResultData
+    {
+        public ProductModel Product { get; set; }
+        public IBrowserFile File { get; set; }
+    }
+
+
+    IList<IBrowserFile> _files = new List<IBrowserFile>();
+    private void UploadFiles(IBrowserFile file)
+    {
+        _files.Clear();
+        _files.Add(file);
+        Console.WriteLine($"file.Name > uploads/{file.Name}");
+        Console.WriteLine($"_files.Count() > {_files.Count()}");
+        @* using var fileStream = file.OpenReadStream(1024 * 1024 * 10); *@
+        //TODO upload the files to the server
+    }
+
+    @* private void Submit() => MudDialog.Close(DialogResult.Ok(Product)); // Return true on confirmation *@
+    private void Submit()
+    {
+        var resultData = new DialogResultData
+        {
+            Product = Product, // Product is your existing model
+            File = _files.FirstOrDefault() // Return the first file (if any)
+        };
+        MudDialog.Close(DialogResult.Ok(resultData));
+    }
+
     private void Cancel() => MudDialog.Cancel();
 
 }
