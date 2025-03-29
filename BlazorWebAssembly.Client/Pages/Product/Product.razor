@@ -108,7 +108,7 @@
     }
     private async Task DeleteProductAsync(ProductModel product)
     {
-        var parameters = new DialogParameters<DeleteDialog>
+        var parameters = new DialogParameters<DeleteProductDialog>
         {
             { x => x.ContentText, "Do you really want to delete these records?" },
             { x => x.ButtonText, "Delete" },
@@ -117,7 +117,7 @@
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
+        var dialog = await DialogService.ShowAsync<DeleteProductDialog>("Delete", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -131,12 +131,12 @@
 
     private async Task UpdateProductAsync(ProductModel product)
     {
-        var parameters = new DialogParameters<UpdateDialog>
+        var parameters = new DialogParameters<UpdateProductDialog>
         {
             { x => x.Product, product }
         };
 
-        var dialog = await DialogService.ShowAsync<UpdateDialog>("Update Product", parameters);
+        var dialog = await DialogService.ShowAsync<UpdateProductDialog>("Update Product", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
