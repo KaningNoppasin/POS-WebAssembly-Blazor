@@ -11,7 +11,7 @@
 <MudContainer Class="mt-5">
     <div class="d-flex justify-between align-items-center gap-2">
         <MudText Typo="Typo.h4">Products</MudText>
-        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
+        <MudFab Color="Color.Primary" @onclick="CreateProductAsync" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
     </div>
 
     <MudTable Items="@products" Hover="true">
@@ -156,6 +156,34 @@
             using var formDataStock = new MultipartFormDataContent();
             formDataStock.Add(new StringContent(updatedProduct.Stock.ToString()), "quantity");
             await Http.PutAsync($"stocks/{product.ProductID}", formDataStock);
+
+            await FetchProductDataAsync();
+            Snackbar.Add("Update Product Success", Severity.Success);
+        }
+    }
+
+    private async Task CreateProductAsync()
+    {
+        var dialog = await DialogService.ShowAsync<CreateProductDialog>("Create Product");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var createdProduct = (ProductModel)result.Data;
+            using var formDataProduct = new MultipartFormDataContent();
+
+            // Add fields as string content
+            formDataProduct.Add(new StringContent(createdProduct.ProductID.ToString()), "ID");
+            formDataProduct.Add(new StringContent(createdProduct.ProductBarcode), "product_barcode");
+            formDataProduct.Add(new StringContent(createdProduct.ProductName), "product_name");
+            formDataProduct.Add(new StringContent(createdProduct.ImagePath), "image_path");
+            formDataProduct.Add(new StringContent(createdProduct.Price.ToString()), "price");
+
+            await Http.PostAsync($"products", formDataProduct);
+
+            using var formDataStock = new MultipartFormDataContent();
+            formDataStock.Add(new StringContent(createdProduct.Stock.ToString()), "quantity");
+            await Http.PostAsync($"stocks", formDataStock);
 
             await FetchProductDataAsync();
             Snackbar.Add("Update Product Success", Severity.Success);
