@@ -187,6 +187,7 @@
             formDataProduct.Add(new StringContent(createdProduct.ProductName), "product_name");
             formDataProduct.Add(new StringContent(createdProduct.ImagePath), "image_path");
             formDataProduct.Add(new StringContent(createdProduct.Price.ToString()), "price");
+            formDataProduct.Add(new StringContent(createdProduct.Stock.ToString()), "quantity");
             @* if (uploadedFile != null)
             {
                 Console.WriteLine($"uploadedFile : have");
@@ -196,14 +197,6 @@
             } *@
 
             await Http.PostAsync($"products", formDataProduct);
-
-            using var formDataStock = new MultipartFormDataContent();
-            formDataStock.Add(new StringContent(createdProduct.Stock.ToString()), "quantity");
-            @* await Http.PostAsync($"stocks", formDataStock); *@
-            @* await Http.PutAsync($"stocks/{createdProduct.ProductID}", formDataStock); *@
-            @* ProductID => 0 (default) *@
-            Console.WriteLine($"stocks/{createdProduct.ProductID}");
-
             await FetchProductDataAsync();
             Snackbar.Add("Update Product Success", Severity.Success);
         }
