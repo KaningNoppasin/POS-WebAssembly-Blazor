@@ -173,32 +173,36 @@
 
         if (!result.Canceled)
         {
-            @* var createdProduct = (ProductModel)result.Data;
-            using var formDataProduct = new MultipartFormDataContent(); *@
-
-            var resultData = (DialogResultData)result.Data;
-            var createdProduct = resultData.Product;
-            var uploadedFile = resultData.File;
+            var createdProduct = (ProductModel)result.Data;
             using var formDataProduct = new MultipartFormDataContent();
 
+            @* var resultData = (DialogResultData)result.Data;
+            var createdProduct = resultData.Product;
+            var uploadedFile = resultData.File;
+            using var formDataProduct = new MultipartFormDataContent(); *@
+
             // Add fields as string content
-            formDataProduct.Add(new StringContent(createdProduct.ProductID.ToString()), "ID");
+            @* formDataProduct.Add(new StringContent(createdProduct.ProductID.ToString()), "ID"); *@
             formDataProduct.Add(new StringContent(createdProduct.ProductBarcode), "product_barcode");
             formDataProduct.Add(new StringContent(createdProduct.ProductName), "product_name");
             formDataProduct.Add(new StringContent(createdProduct.ImagePath), "image_path");
             formDataProduct.Add(new StringContent(createdProduct.Price.ToString()), "price");
-            if (uploadedFile != null)
+            @* if (uploadedFile != null)
             {
-                @* Console.WriteLine($"uploadedFile :{uploadedFile.Name}"); *@
-                @* using var fileStream = await uploadedFile.OpenReadStreamAsync(10 * 1024 * 1024); *@
-                @* formDataProduct.Add(new StreamContent(fileStream), "file", uploadedFile.Name); *@
-            }
+                Console.WriteLine($"uploadedFile : have");
+                Console.WriteLine($"uploadedFile :{uploadedFile.Name}");
+                using var fileStream = await uploadedFile.OpenReadStreamAsync(10 * 1024 * 1024);
+                formDataProduct.Add(new StreamContent(fileStream), "file", uploadedFile.Name);
+            } *@
 
             await Http.PostAsync($"products", formDataProduct);
 
             using var formDataStock = new MultipartFormDataContent();
             formDataStock.Add(new StringContent(createdProduct.Stock.ToString()), "quantity");
-            await Http.PostAsync($"stocks", formDataStock);
+            @* await Http.PostAsync($"stocks", formDataStock); *@
+            @* await Http.PutAsync($"stocks/{createdProduct.ProductID}", formDataStock); *@
+            @* ProductID => 0 (default) *@
+            Console.WriteLine($"stocks/{createdProduct.ProductID}");
 
             await FetchProductDataAsync();
             Snackbar.Add("Update Product Success", Severity.Success);

@@ -63,8 +63,8 @@
         //TODO upload the files to the server
     }
 
-    @* private void Submit() => MudDialog.Close(DialogResult.Ok(Product)); // Return true on confirmation *@
-    private void Submit()
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Product)); // Return true on confirmation
+    @* private void Submit()
     {
         var resultData = new DialogResultData
         {
@@ -72,7 +72,7 @@
             File = _files.FirstOrDefault() // Return the first file (if any)
         };
         MudDialog.Close(DialogResult.Ok(resultData));
-    }
+    } *@
 
     private void Cancel() => MudDialog.Cancel();
 
