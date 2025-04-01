@@ -1,0 +1,93 @@
+@page "/customers"
+@using System.Text.Json
+@inject HttpClient Http
+@using MudBlazor
+@using System.Text.Json.Serialization;
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@using MudBlazor.Examples.Data.Models
+
+<PageTitle>Customers</PageTitle>
+<MudContainer Class="mt-5">
+    <div class="d-flex justify-between align-items-center gap-2">
+        <MudText Typo="Typo.h4">Customers</MudText>
+        @* TODO: Add onclick event *@
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
+    </div>
+
+    <MudTable Items="@customers" Hover="true">
+        <HeaderContent>
+            <MudTh>CustomerName</MudTh>
+            <MudTh>Phone</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>CardUID</MudTh>
+            <MudTh>CustomerPoints</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.CustomerName</MudTd>
+            <MudTd>@context.Phone</MudTd>
+            <MudTd>@context.Email</MudTd>
+            <MudTd>@context.CardUID</MudTd>
+            <MudTd>@context.CustomerPoints</MudTd>
+            <MudTd Width="200">
+                @* TODO: Add onclick event *@
+                <MudFab Class="" Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" />
+                <MudFab Color="Color.Secondary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<CustomerModel> customers = new List<CustomerModel>();
+    private bool getCustomerError;
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    // This method will run on page initialization
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchCustomerDataAsync();
+        shouldRender = true;
+    }
+
+    private async Task FetchCustomerDataAsync()
+    {
+        var response = await Http.GetFromJsonAsync<ApiResponse>("customers");
+
+        if (response?.Data != null)
+        {
+            customers = response.Data.Select(p => new CustomerModel
+            {
+                CustomerID = p.ID,
+                CustomerName = p.CustomerName ?? string.Empty,
+                Phone = p.Phone ?? string.Empty,
+                Email = p.Email ?? string.Empty,
+                CardUID = p.CardUID ?? string.Empty,
+                CustomerPoints = p.CustomerPoints,
+            }).ToList();
+        }
+    }
+
+    public class ApiResponse
+    {
+        public string? Status { get; set; }
+        public List<ApiCustomer>? Data { get; set; }
+    }
+    public class ApiCustomer
+    {
+        public int ID { get; set; }
+        [JsonPropertyName("customer_name")]
+        public string? CustomerName { get; set; }
+        [JsonPropertyName("phone")]
+        public string? Phone { get; set; }
+        [JsonPropertyName("email")]
+        public string? Email { get; set; }
+        [JsonPropertyName("card_uid")]
+        public string? CardUID { get; set; }
+        [JsonPropertyName("customer_points")]
+        public uint CustomerPoints { get; set; }
+    }
+}
