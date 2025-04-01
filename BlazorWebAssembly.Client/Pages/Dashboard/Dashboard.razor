@@ -1,6 +1,12 @@
 @page "/dashboard"
 @using MudBlazor
 @using System.Collections.Generic
+@using System.Text.Json
+@inject HttpClient Http
+@using System.Text.Json.Serialization;
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@using MudBlazor.Examples.Data.Models
 
 
 <PageTitle>Dashboard</PageTitle>
@@ -11,6 +17,47 @@
 
 
 @code {
+    private List<BillModel> bills = new List<BillModel>();
+    private bool getBillError;
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    // This method will run on page initialization
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchBillDataAsync();
+        shouldRender = true;
+    }
+
+    private async Task FetchBillDataAsync()
+    {
+        var response = await Http.GetFromJsonAsync<ApiResponse>("bills");
+
+        if (response?.Data != null)
+        {
+            bills = response.Data.Select(p => new BillModel
+            {
+                BillID = p.ID,
+                CustomerID = p.CustomerID,
+                TotalAmount = p.TotalAmount,
+            }).ToList();
+        }
+    }
+
+    public class ApiResponse
+    {
+        public string? Status { get; set; }
+        public List<ApiBill>? Data { get; set; }
+    }
+    public class ApiBill
+    {
+        public int ID { get; set; }
+        [JsonPropertyName("customer_id")]
+        public uint CustomerID { get; set; }
+        [JsonPropertyName("total_amount")]
+        public uint TotalAmount { get; set; }
+    }
     private List<ChartSeries> _series = new List<ChartSeries>()
     {
         new ChartSeries() { Name = "Series 1", Data = new double[] { 10, 20, 15, 30, 25, 40 } },
