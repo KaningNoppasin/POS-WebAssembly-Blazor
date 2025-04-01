@@ -1,0 +1,23 @@
+@page "/dashboard"
+@using MudBlazor
+@using System.Collections.Generic
+
+
+<PageTitle>Dashboard</PageTitle>
+<MudContainer Class="mt-5">
+    <MudText Typo="Typo.h4">Dashboard</MudText>
+    <MudChart ChartType="ChartType.Line" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="@_width" Height="@_height" ChartOptions="@_options" />
+</MudContainer>
+
+
+@code {
+    private List<ChartSeries> _series = new List<ChartSeries>()
+    {
+        new ChartSeries() { Name = "Series 1", Data = new double[] { 10, 20, 15, 30, 25, 40 } },
+    };
+
+    private string[] _xAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun" };
+    private string _width = "650px";
+    private string _height = "350px";
+    private ChartOptions _options = new ChartOptions();
+}
