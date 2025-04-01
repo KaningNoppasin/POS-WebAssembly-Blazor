@@ -7,5 +7,6 @@ namespace MudBlazor.Examples.Data.Models
         public int BillID { get; set; }
         public uint CustomerID { get; set; }
         public uint TotalAmount { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

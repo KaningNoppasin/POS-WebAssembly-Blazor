@@ -13,8 +13,8 @@
 <MudContainer Class="mt-5">
     <MudText Typo="Typo.h4">Dashboard</MudText>
     <MudChart ChartType="ChartType.Line" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="@_width" Height="@_height" ChartOptions="@_options" />
+    <MudChart ChartType="ChartType.Bar" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="@_width" Height="@_height" ChartOptions="@_options" />
 </MudContainer>
-
 
 @code {
     private List<BillModel> bills = new List<BillModel>();
@@ -41,8 +41,55 @@
                 BillID = p.ID,
                 CustomerID = p.CustomerID,
                 TotalAmount = p.TotalAmount,
+                UpdatedAt = p.UpdatedAt,
             }).ToList();
+
+            // Process bills to plot total amount over time
+            ProcessBillsForPlotting();
         }
+    }
+
+    private void ProcessBillsForPlotting()
+    {
+        var monthlyTotals = new Dictionary<string, double>();
+
+        // Assuming bills are sorted by date (you might need to adjust this based on your data)
+        foreach (var bill in bills)
+        {
+            // For simplicity, let's assume the date is the month of the bill creation (you might need to adjust this)
+            // In real scenarios, you would parse the date from your data
+            var month = GetMonthFromBill(bill); // Implement GetMonthFromBill to extract the month from your bill data
+
+            if (monthlyTotals.ContainsKey(month))
+            {
+                monthlyTotals[month] += bill.TotalAmount;
+            }
+            else
+            {
+                monthlyTotals[month] = bill.TotalAmount;
+            }
+        }
+
+        // Update chart series
+        UpdateChartSeries(monthlyTotals);
+    }
+
+    private string GetMonthFromBill(BillModel bill)
+    {
+        // Implement logic to extract the month from your bill data
+        // For demonstration, let's assume bills are created in the following months
+        var month = bill.UpdatedAt.Month;
+        var monthNames = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+        return monthNames[month - 1];
+    }
+
+    private void UpdateChartSeries(Dictionary<string, double> monthlyTotals)
+    {
+        _series.Clear();
+        _xAxisLabels = monthlyTotals.Keys.ToArray();
+
+        var seriesData = monthlyTotals.Values.ToArray();
+        _series.Add(new ChartSeries() { Name = "Total Amount", Data = seriesData });
     }
 
     public class ApiResponse
@@ -57,13 +104,11 @@
         public uint CustomerID { get; set; }
         [JsonPropertyName("total_amount")]
         public uint TotalAmount { get; set; }
+        [JsonPropertyName("UpdatedAt")]
+        public DateTime UpdatedAt { get; set; }
     }
-    private List<ChartSeries> _series = new List<ChartSeries>()
-    {
-        new ChartSeries() { Name = "Series 1", Data = new double[] { 10, 20, 15, 30, 25, 40 } },
-    };
-
-    private string[] _xAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun" };
+    private List<ChartSeries> _series = new List<ChartSeries>();
+    private string[] _xAxisLabels = new string[0];
     private string _width = "650px";
     private string _height = "350px";
     private ChartOptions _options = new ChartOptions();
