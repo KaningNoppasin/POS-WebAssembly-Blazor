@@ -1,0 +1,80 @@
+@page "/bills"
+@using System.Text.Json
+@inject HttpClient Http
+@using MudBlazor
+@using System.Text.Json.Serialization;
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@using MudBlazor.Examples.Data.Models
+
+<PageTitle>Bills</PageTitle>
+<MudContainer Class="mt-5">
+    <div class="d-flex justify-between align-items-center gap-2">
+        <MudText Typo="Typo.h4">Bills</MudText>
+        @* TODO: Add onclick event *@
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
+    </div>
+
+    <MudTable Items="@bills" Hover="true">
+        <HeaderContent>
+            <MudTh>BillID</MudTh>
+            <MudTh>CustomerID</MudTh>
+            <MudTh>TotalAmount</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.BillID</MudTd>
+            <MudTd>@context.CustomerID</MudTd>
+            <MudTd>@context.TotalAmount</MudTd>
+            <MudTd Width="200">
+                @* TODO: Add onclick event *@
+                <MudFab Class="" Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" />
+                <MudFab Color="Color.Secondary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<BillModel> bills = new List<BillModel>();
+    private bool getBillError;
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    // This method will run on page initialization
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchBillDataAsync();
+        shouldRender = true;
+    }
+
+    private async Task FetchBillDataAsync()
+    {
+        var response = await Http.GetFromJsonAsync<ApiResponse>("bills");
+
+        if (response?.Data != null)
+        {
+            bills = response.Data.Select(p => new BillModel
+            {
+                BillID = p.ID,
+                CustomerID = p.CustomerID,
+                TotalAmount = p.TotalAmount,
+            }).ToList();
+        }
+    }
+
+    public class ApiResponse
+    {
+        public string? Status { get; set; }
+        public List<ApiBill>? Data { get; set; }
+    }
+    public class ApiBill
+    {
+        public int ID { get; set; }
+        [JsonPropertyName("customer_id")]
+        public uint CustomerID { get; set; }
+        [JsonPropertyName("total_amount")]
+        public uint TotalAmount { get; set; }
+    }
+}
