@@ -11,9 +11,15 @@
 
 <PageTitle>Dashboard</PageTitle>
 <MudContainer Class="mt-5">
-    <MudText Typo="Typo.h4">Dashboard</MudText>
-    <MudChart ChartType="ChartType.Line" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="@_width" Height="@_height" ChartOptions="@_options" />
-    <MudChart ChartType="ChartType.Bar" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="@_width" Height="@_height" ChartOptions="@_options" />
+    <div>
+        <MudText Typo="Typo.h4">Dashboard</MudText>
+    </div>
+    <div class="d-flex flex-column align-center">
+        <MudText Typo="Typo.h5">Line</MudText>
+        <MudChart ChartType="ChartType.Line" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="1200px" Height="600px" ChartOptions="@_options" />
+        <MudText Typo="Typo.h5">Bar</MudText>
+        <MudChart ChartType="ChartType.Bar" ChartSeries="@_series" XAxisLabels="@_xAxisLabels" Width="1200px" Height="600px" ChartOptions="@_options" />
+    </div>
 </MudContainer>
 
 @code {
