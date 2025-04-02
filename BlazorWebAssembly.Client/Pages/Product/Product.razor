@@ -16,11 +16,23 @@
 
     <MudTable Items="@products" Hover="true">
         <HeaderContent>
-            <MudTh>Barcode</MudTh>
-            <MudTh>Name</MudTh>
-            <MudTh>Price</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<ProductModel, object>(x => x.ProductBarcode)">Barcode</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<ProductModel, object>(x => x.ProductName)">Name</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<ProductModel, object>(x => x.Price)">Price</MudTableSortLabel>
+            </MudTh>
+            @* <MudTh>Barcode</MudTh> *@
+            @* <MudTh>Name</MudTh> *@
+            @* <MudTh>Price</MudTh> *@
             <MudTh>Image</MudTh>
-            <MudTh>Stock</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<ProductModel, object>(x => x.Stock)">Stock</MudTableSortLabel>
+            </MudTh>
+            @* <MudTh>Stock</MudTh> *@
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
